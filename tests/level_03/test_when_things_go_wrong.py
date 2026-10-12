@@ -13,6 +13,40 @@ from dungeon.dice import parse
 from dungeon.hero import Hero, HeroIsDeadError
 from dungeon.inventory import Inventory, InventoryFullError, Item
 
+def test_negative_damage_raises_value_error():
+    hero = Hero("Ada")
+
+    with pytest.raises(ValueError, match="^damage cannot be negative$"):
+        hero.take_damage(-5)
+
+
+def test_healing_a_dead_hero_raises_hero_is_dead_error():
+    hero = Hero("Ada", hp=0)
+
+    with pytest.raises(HeroIsDeadError, match="Ada is dead"):
+        hero.heal(10)
+
+
+def test_battle_cry_warns_and_returns_the_shout():
+    hero = Hero("Ada")
+
+    with pytest.warns(DeprecationWarning, match="battle_cry.*deprecated"):
+        result = hero.battle_cry()
+
+    assert result == "ADA CHARGES!"
+
+
+def test_overweight_inventory_raises_inventory_full_error():
+    backpack = Inventory(max_weight=1.0)
+    sword = Item("sword", 2.0, 30)
+
+    with pytest.raises(InventoryFullError, match="sword is too heavy"):
+        backpack.add(sword)
+
+
+def test_invalid_dice_notation_raises_value_error():
+    with pytest.raises(ValueError, match="^invalid dice notation"):
+        parse("banana")
 
 # A first step, to get you going. Uncomment it, run it, then make it your own:
 #
